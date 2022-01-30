@@ -1,18 +1,21 @@
 import scrapy
 import xlsxwriter
+import pandas as pd
 
-OUT_XLSX_FILENAME = "out.xlsx"
+url_list = []
+title_list = []
+price_list = []
 
 class InnovationSpider(scrapy.Spider):
     name = 'innovation'
     allowed_domains = ['innovation-aks.ru']
     start_urls = ['https://innovation-aks.ru/']
-    page_count = 1
-    # header_row = 0
+    page_count = 4
+    current_page = 0
     
     def start_requests(self):
-        print("startstartstartstartstartstartstartstartstartstartstartstartstartstartstart")
         for page in range(1, 1 + self.page_count): 
+            self.current_page += 1
             url = f'https://innovation-aks.ru/category/chekhly_1/?page={page}'
             yield scrapy.Request(url, callback=self.parce_pages)
             
@@ -24,27 +27,22 @@ class InnovationSpider(scrapy.Spider):
             
             
     def parse(self, response, **kwargs):        
-        print(response.css("h1 span::text").extract_first().encode().decode().strip())
-        item = {
-            'url': response.request.url,
-            'title': response.css("h1 span::text").extract_first().strip(),
-            'price': response.css(".product__block .price::text").extract_first().strip(),
+        item = {   
+            "url": response.request.url,
+            "tilte": response.css("h1 span::text").extract_first().encode().decode().strip(),
+            "price": response.css(".product__block .price::text").extract_first().strip()
         }
-        yield item
-
-    
-    # def dump_to_xlsx(item):
-    #     print("itemitemitemitemitemitemitem " + item)
-    #     return item
-        # with xlsxwriter.Workbook(OUT_XLSX_FILENAME) as workbook:
-        #     ws = workbook.add_worksheet()
-        #     bold = workbook.add_format({'bold': True})
-        #     headers = ['url', 'title', 'price']
-        #     for col, h in enumerate(headers):
-        #         ws.write_string(0, col, h, cell_fomat=bold)
-
-        #     for row, item in enumerate(item):
-        #         ws.write_string(row, 0, item['url'])
-        #         ws.write_string(row, 1, item['title'])
-        #         ws.write_string(row, 2, item['price'])
         
+        url_list.append(response.request.url)
+        title_list.append(response.css("h1 span::text").extract_first().encode().decode().strip())
+        price_list.append(response.css(".product__block .price::text").extract_first().strip())
+        
+        df = pd.DataFrame({
+            'url': url_list,
+            'title': title_list,
+            'price': price_list,
+        })
+        # save in excel
+        df.to_excel('innovation.xlsx', index=False)
+        
+        yield item
