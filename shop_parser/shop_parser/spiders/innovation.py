@@ -10,25 +10,6 @@ class InnovationSpider(scrapy.Spider):
     page_count = 1
     # header_row = 0
     
-    
-    # def dump_to_xlsx(filename, item):
-    #     with xlsxwriter.Workbook(filename) as workbook:
-    #         ws = workbook.add_worksheet()
-    #         if (header_row == 0):
-    #             bold = workbook.add_format({'bold': True})
-    #             headers = ['url', 'title', 'price']
-    #             for col, h in enumerate(headers):
-    #                 ws.write_string(0, col, h, cell_fomat=bold)
-    #             header_row = 1
-    #             return
-    #         else:
-    #             for row, item in enumerate(item):
-    #                 ws.write_string(row, 0, item['url'])
-    #                 ws.write_string(row, 1, item['title'])
-    #                 ws.write_string(row, 2, item['price'])
-    # dump_to_xlsx(OUT_XLSX_FILENAME, "")
-    
-    
     def start_requests(self):
         print("startstartstartstartstartstartstartstartstartstartstartstartstartstartstart")
         for page in range(1, 1 + self.page_count): 
@@ -49,5 +30,21 @@ class InnovationSpider(scrapy.Spider):
             'title': response.css("h1 span::text").extract_first().strip(),
             'price': response.css(".product__block .price::text").extract_first().strip(),
         }
-        return item
-        # return dump_to_xlsx(OUT_XLSX_FILENAME, item)
+        yield item
+
+    
+    # def dump_to_xlsx(item):
+    #     print("itemitemitemitemitemitemitem " + item)
+    #     return item
+        # with xlsxwriter.Workbook(OUT_XLSX_FILENAME) as workbook:
+        #     ws = workbook.add_worksheet()
+        #     bold = workbook.add_format({'bold': True})
+        #     headers = ['url', 'title', 'price']
+        #     for col, h in enumerate(headers):
+        #         ws.write_string(0, col, h, cell_fomat=bold)
+
+        #     for row, item in enumerate(item):
+        #         ws.write_string(row, 0, item['url'])
+        #         ws.write_string(row, 1, item['title'])
+        #         ws.write_string(row, 2, item['price'])
+        
