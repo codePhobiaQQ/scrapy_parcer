@@ -14,7 +14,7 @@ NEWSPIDER_MODULE = 'shop_parser.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'shop_parser (+http://www.yourdomain.com)'
+USER_AGENT = 'shop_parser (+http://innovation-aks.ru)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
