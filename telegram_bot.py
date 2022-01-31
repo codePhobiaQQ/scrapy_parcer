@@ -1,37 +1,38 @@
-import telebot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import config
-import requests
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
-filename = "innovation.xlsx"
-bot = telebot.TeleBot(config.TOKEN)
+chat_id = config.CHAT_ID
 
-# def send_photo_url(chat_id, img_url):
-#     requests.get(f'{config.URL}{config.TOKEN}/sendPhoto?chat_id={config.CHAT_ID}&photo={filename}')
 
-# def send_document(filename):
-#      url = 'https://api.telegram.org/bot{config.TOKEN}/sendDocument'.format(config.TOKEN)
-#      data = {'chat_id': config.CHAT_ID, 'caption': 'Результат парсинга'}
-#      print("hello world")
-#      with open(filename, 'rb') as f:
-#          files = {'document': f}
-#          print("filllelelelelelelelelle", files);
-#          response = requests.post(url, data=data, files=files)
-#          print(response.json())
- 
-    
-@bot.message_handler(content_types=['text'])
-def send_documentation(message):
-    try:
-        # bot.send_message(message.chat.id, message.text)
-        # bot.send_message(message.chat.id, message.chat.id)
+def start_handler(update, context):
+    text = 'Привет! В каком формате прислать данные?'
+    keyboard = [
+        [InlineKeyboardButton(text='Получить JSON', callback_data='get_json'), ],
+        [InlineKeyboardButton(text='Получить XLSX', callback_data='get_xlsx'), ]
+    ]
+    markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(text=text, reply_markup=markup)
+
+
+def callback_handler(update, context):
+    query = update.callback_query
+    query.answer()
+    filenames = {
+        'get_json': "./shop_parser/shop_parser/dump.json",
+        'get_xlsx': "./shop_parser/shop_parser/innovation.xlsx",
         
-        doc = open('./innovation.xlsx', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_document(message.chat.id, "FILEID") 
-        # requests.post(f'{config.URL}{config.TOKEN}/sendPhoto?chat_id={config.CHAT_ID}&photo={"https://s1.1zoom.ru/big3/256/359188-svetik.jpg"}')
-    except Exception as e:
-        pass
-        # bot.reply_to(message, e)
-    
+    }
+    if query.data in ('get_xlsx', 'get_json'):
+        filename = filenames[query.data]
+        with open(filename, 'rb') as f:
+            context.bot.send_document(query.message.chat_id, document=f)
+
+ 
+updater = Updater(config.TOKEN, use_context=True)
+updater.dispatcher.add_handler(CommandHandler('start', start_handler))
+updater.dispatcher.add_handler(CallbackQueryHandler(callback_handler))
+
 # RUN
-bot.polling(none_stop=True, interval=0)
+updater.start_polling()
+updater.idle()
