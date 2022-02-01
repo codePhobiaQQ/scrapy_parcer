@@ -5,12 +5,14 @@ import pandas as pd
 url_list = []
 title_list = []
 price_list = []
+image_list = []
+status_list = []
 
 class InnovationSpider(scrapy.Spider):
     name = 'innovation'
     allowed_domains = ['innovation-aks.ru']
     start_urls = ['https://innovation-aks.ru/']
-    page_count = 4
+    page_count = 76
     current_page = 0
     
     def start_requests(self):
@@ -30,19 +32,25 @@ class InnovationSpider(scrapy.Spider):
         item = {   
             "url": response.request.url,
             "tilte": response.css("h1 span::text").extract_first().encode().decode().strip(),
-            "price": response.css(".product__block .price::text").extract_first().strip()
+            "price": response.css(".product__block .price::text").extract_first().strip(),
+            "img": response.css(".product__photo .image a::attr('href')").extract_first().strip(),
+            "status": response.css(".product-status::text").extract_first().strip()
         }
         
         url_list.append(response.request.url)
         title_list.append(response.css("h1 span::text").extract_first().encode().decode().strip())
         price_list.append(response.css(".product__block .price::text").extract_first().strip())
-        
+        image_list.append(response.css(".product__photo .image a::attr('href')").extract_first().strip())
+        status_list.append(response.css(".product-status::text").extract_first().strip())
+    
         df = pd.DataFrame({
-            'url': url_list,
-            'title': title_list,
-            'price': price_list,
+            'Ссылка на товар': url_list,
+            'Название товара': title_list,
+            'Цена товара': price_list,
+            'Ссылка на изображение товара': image_list,
+            'Наличие': status_list,
         })
         # save in excel
-        df.to_excel('innovation.xlsx', index=False)
+        df.to_excel('innovation2.xlsx', index=False)
         
         yield item

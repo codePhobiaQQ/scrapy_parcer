@@ -19,8 +19,8 @@ def callback_handler(update, context):
     query = update.callback_query
     query.answer()
     filenames = {
-        'get_json': "./shop_parser/shop_parser/dump.json",
-        'get_xlsx': "./shop_parser/shop_parser/innovation.xlsx",
+        'get_json': "./shop_parser/shop_parser/dump2.json",
+        'get_xlsx': "./shop_parser/shop_parser/innovation2.xlsx",
         
     }
     if query.data in ('get_xlsx', 'get_json'):
@@ -29,7 +29,7 @@ def callback_handler(update, context):
             context.bot.send_document(query.message.chat_id, document=f)
 
  
-updater = Updater(config.TOKEN, use_context=True)
+updater = Updater(config.TOKEN)
 updater.dispatcher.add_handler(CommandHandler('start', start_handler))
 updater.dispatcher.add_handler(CallbackQueryHandler(callback_handler))
 
